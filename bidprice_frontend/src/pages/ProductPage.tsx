@@ -38,44 +38,60 @@ export const ProductPage: React.FC = () => {
   useEffect(() => {
     if (!productId) return;
 
+    let isMounted = true;
+    
     const fetchProductData = async () => {
       try {
         setLoading(true);
         console.log('Fetching product data for ID:', productId);
+        
         const productData = await productsApi.getById(productId);
         console.log('Product data received:', productData);
-        setProduct(productData);
+        
+        if (isMounted) {
+          setProduct(productData);
+          setError(null);
+        }
         
         const bidsData = await bidsApi.getForProduct(productId);
-        setBids(bidsData.sort((a, b) => 
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        ));
         
-        setError(null);
+        if (isMounted) {
+          setBids(bidsData.sort((a, b) => 
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          ));
+        }
       } catch (err) {
         console.error('Failed to fetch product data:', err);
-        setError('Failed to load product data. Please try again later.');
+        if (isMounted) {
+          setError('Failed to load product data. Please try again later.');
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchProductData();
     
-    return () => {}; // Cleanup function
+    return () => {
+      isMounted = false;
+    };
   }, [productId]); // Only depend on productId
   
   useEffect(() => {
-    if (!product) return;
+    if (!product || !product.auction_end_date) return;
     
-    setTimeLeft(formatTimeLeft(product.auction_end_date));
-    
-    const timer = setInterval(() => {
+    const updateTimeLeft = () => {
       setTimeLeft(formatTimeLeft(product.auction_end_date));
-    }, 1000);
+    };
+    
+    updateTimeLeft();
+    
+    const timer = setInterval(updateTimeLeft, 1000);
     
     return () => clearInterval(timer);
-  }, [product]);
+  }, [product?.auction_end_date]); // Only depend on auction_end_date, not the entire product object
 
   const formatTimeLeft = (endDate: string) => {
     const end = new Date(endDate);
@@ -322,9 +338,16 @@ export const ProductPage: React.FC = () => {
                     <Button 
                       type="submit" 
                       disabled={bidLoading}
-                      className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 transition-colors"
+                      className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 transition-colors relative"
                     >
-                      {bidLoading ? 'Υποβολή...' : 'Υποβολή Προσφοράς'}
+                      {bidLoading ? (
+                        <>
+                          <span className="opacity-0">Υποβολή Προσφοράς</span>
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
+                          </div>
+                        </>
+                      ) : 'Υποβολή Προσφοράς'}
                     </Button>
                   </div>
                 </form>
