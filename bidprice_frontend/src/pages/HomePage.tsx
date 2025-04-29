@@ -54,16 +54,17 @@ const HomePage: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-12 text-center bg-gradient-to-r from-green-50 to-yellow-50 py-12 px-6 rounded-lg shadow-sm">
-        <div className="flex justify-center mb-6">
-          <img src="/images/logo.png" alt="BidPrice.gr Logo" className="h-20" />
+      <div className="mb-12 text-center bg-gradient-to-r from-green-50 to-yellow-50 py-14 px-8 rounded-xl shadow-md border border-green-100 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-400 to-yellow-400"></div>
+        <div className="flex justify-center mb-8 transform hover:scale-105 transition-transform duration-300">
+          <img src="/images/logo.png" alt="BidPrice.gr Logo" className="h-24" />
         </div>
-        <h1 className="text-4xl font-bold mb-4 text-gray-800">Καλωσήρθατε στο <span className="bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-yellow-600">BidPrice.gr</span></h1>
-        <p className="text-gray-700 max-w-2xl mx-auto text-lg">
+        <h1 className="text-5xl font-bold mb-6 text-gray-800">Καλωσήρθατε στο <span className="bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-yellow-600">BidPrice.gr</span></h1>
+        <p className="text-gray-700 max-w-2xl mx-auto text-lg leading-relaxed">
           Η πιο εύκολη και προσιτή πλατφόρμα δημοπρασιών στην Ελλάδα. Βρείτε μοναδικά προϊόντα ή πουλήστε τα δικά σας μέσω δημοπρασίας.
         </p>
-        <div className="mt-8">
-          <Button asChild className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-6 py-2 rounded-md shadow-md transition-all duration-300 text-lg">
+        <div className="mt-10">
+          <Button asChild className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-lg font-medium">
             <Link to="/products/new">Προσθήκη Προϊόντος</Link>
           </Button>
         </div>
@@ -112,24 +113,24 @@ const HomePage: React.FC = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {products.map((product) => (
-            <Card key={product.id} className="overflow-hidden flex flex-col h-full hover:shadow-lg transition-shadow duration-300 border-gray-200 rounded-xl">
+            <Card key={product.id} className="overflow-hidden flex flex-col h-full hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-gray-200 rounded-xl group">
               {product.image_url ? (
                 <div className="relative h-48 overflow-hidden bg-gray-100">
                   <img 
                     src={`${import.meta.env.VITE_API_URL}/${product.image_url}`} 
                     alt={product.title} 
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
                   />
                   {product.current_highest_bid && (
-                    <div className="absolute top-0 right-0 bg-gradient-to-r from-green-600 to-green-700 text-white px-3 py-1 text-sm font-medium rounded-bl-md flex items-center">
-                      <ArrowUp size={14} className="mr-1" />
+                    <div className="absolute top-0 right-0 bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 text-sm font-medium rounded-bl-lg shadow-md flex items-center">
+                      <ArrowUp size={14} className="mr-1.5" />
                       {product.current_highest_bid} €
                     </div>
                   )}
                 </div>
               ) : (
-                <div className="h-48 bg-gradient-to-r from-gray-50 to-gray-100 flex items-center justify-center">
-                  <Package size={48} className="text-gray-400" />
+                <div className="h-48 bg-gradient-to-r from-gray-50 to-gray-100 flex items-center justify-center group-hover:bg-gradient-to-r group-hover:from-gray-100 group-hover:to-gray-200 transition-colors duration-300">
+                  <Package size={48} className="text-gray-400 group-hover:text-gray-500 transition-colors duration-300" />
                 </div>
               )}
               <CardHeader className="pb-2">

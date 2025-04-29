@@ -181,34 +181,37 @@ export const ProductPage: React.FC = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
-          <Card className="overflow-hidden border-gray-200 shadow-md">
+          <Card className="overflow-hidden border-gray-200 shadow-lg hover:shadow-xl transition-shadow duration-300 rounded-xl">
             {product.image_url ? (
               <div className="relative h-64 md:h-80 overflow-hidden bg-gray-100 border-b border-gray-200">
                 <img 
                   src={`${import.meta.env.VITE_API_URL}/${product.image_url}`} 
                   alt={product.title} 
-                  className="w-full h-full object-contain"
+                  className="w-full h-full object-contain transform hover:scale-105 transition-transform duration-700"
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
                 {product.current_highest_bid && (
-                  <div className="absolute top-0 right-0 bg-gradient-to-r from-green-600 to-green-700 text-white px-3 py-1 text-sm font-medium rounded-bl-md flex items-center">
-                    <ArrowUp size={14} className="mr-1" />
+                  <div className="absolute top-0 right-0 bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 text-sm font-medium rounded-bl-lg shadow-md flex items-center">
+                    <ArrowUp size={14} className="mr-1.5" />
                     {product.current_highest_bid.toFixed(2)} €
                   </div>
                 )}
               </div>
             ) : (
-              <div className="h-48 bg-gradient-to-r from-gray-100 to-gray-200 flex items-center justify-center border-b border-gray-200">
+              <div className="h-48 bg-gradient-to-r from-gray-50 to-gray-200 flex items-center justify-center border-b border-gray-200">
                 <Package size={64} className="text-gray-400" />
               </div>
             )}
-            <CardHeader className="pb-2 border-b border-gray-100">
-              <CardTitle className="text-2xl text-gray-800">{product.title}</CardTitle>
-              <CardDescription className="flex items-center text-sm mt-2">
-                <Clock className="mr-1 h-4 w-4 text-green-600" />
+            <CardHeader className="pb-3 border-b border-gray-100 bg-gradient-to-r from-white to-gray-50">
+              <CardTitle className="text-3xl text-gray-800 font-bold leading-tight">{product.title}</CardTitle>
+              <CardDescription className="flex items-center text-sm mt-3">
+                <Clock className="mr-2 h-5 w-5 text-green-600" />
                 {isAuctionEnded() ? (
-                  <span className="text-red-500 font-medium bg-red-50 px-2 py-1 rounded-full">Η δημοπρασία έχει λήξει</span>
+                  <span className="text-red-500 font-medium bg-red-50 px-3 py-1.5 rounded-full shadow-sm border border-red-100">
+                    Η δημοπρασία έχει λήξει
+                  </span>
                 ) : (
-                  <span className="text-green-700 bg-green-50 px-2 py-1 rounded-full font-medium">
+                  <span className="text-green-700 bg-green-50 px-3 py-1.5 rounded-full font-medium shadow-sm border border-green-100">
                     Απομένουν: {timeLeft || formatTimeLeft(product.auction_end_date)}
                   </span>
                 )}
@@ -216,29 +219,33 @@ export const ProductPage: React.FC = () => {
             </CardHeader>
             <CardContent className="pt-4">
               <div className="space-y-6">
-                <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
-                  <h3 className="text-lg font-medium mb-3 text-gray-800 flex items-center">
+                <div className="bg-gradient-to-r from-green-50 to-white p-5 rounded-xl border border-green-100 shadow-sm">
+                  <h3 className="text-lg font-bold mb-4 text-gray-800 flex items-center border-b pb-2 border-green-100">
                     <Tag className="mr-2 text-green-600" size={18} />
                     Πληροφορίες Προϊόντος
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="bg-white p-3 rounded-md border border-gray-100 shadow-sm">
-                      <h4 className="text-sm font-medium text-gray-500 mb-1">Τιμή εκκίνησης</h4>
-                      <p className="text-lg font-medium text-gray-900">{product.starting_price.toFixed(2)} €</p>
+                    <div className="bg-white p-4 rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-300">
+                      <h4 className="text-sm font-medium text-gray-500 mb-2 flex items-center">
+                        <Tag className="mr-1.5 h-4 w-4 text-green-600" /> Τιμή εκκίνησης
+                      </h4>
+                      <p className="text-xl font-bold text-gray-900">{product.starting_price.toFixed(2)} €</p>
                     </div>
-                    <div className="bg-white p-3 rounded-md border border-gray-100 shadow-sm">
-                      <h4 className="text-sm font-medium text-gray-500 mb-1">Τρέχουσα προσφορά</h4>
-                      <p className="text-lg font-medium text-green-600">
+                    <div className="bg-white p-4 rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-300">
+                      <h4 className="text-sm font-medium text-gray-500 mb-2 flex items-center">
+                        <ArrowUp className="mr-1.5 h-4 w-4 text-green-600" /> Τρέχουσα προσφορά
+                      </h4>
+                      <p className="text-xl font-bold text-green-600">
                         {product.current_highest_bid 
                           ? `${product.current_highest_bid.toFixed(2)} €` 
                           : 'Καμία προσφορά'}
                       </p>
                     </div>
-                    <div className="bg-white p-3 rounded-md border border-gray-100 shadow-sm">
-                      <h4 className="text-sm font-medium text-gray-500 mb-1 flex items-center">
-                        <Calendar className="mr-1 h-3 w-3 text-green-600" /> Ημερομηνία λήξης
+                    <div className="bg-white p-4 rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-300">
+                      <h4 className="text-sm font-medium text-gray-500 mb-2 flex items-center">
+                        <Calendar className="mr-1.5 h-4 w-4 text-green-600" /> Ημερομηνία λήξης
                       </h4>
-                      <p className="text-sm font-medium">
+                      <p className="text-sm font-medium bg-gray-50 px-2 py-1 rounded-md inline-block">
                         {new Date(product.auction_end_date).toLocaleString('el-GR', {
                           day: '2-digit',
                           month: '2-digit',
@@ -248,11 +255,13 @@ export const ProductPage: React.FC = () => {
                         })}
                       </p>
                     </div>
-                    <div className="bg-white p-3 rounded-md border border-gray-100 shadow-sm">
-                      <h4 className="text-sm font-medium text-gray-500 mb-1 flex items-center">
-                        <UserIcon className="mr-1 h-3 w-3 text-green-600" /> Πωλητής
+                    <div className="bg-white p-4 rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-300">
+                      <h4 className="text-sm font-medium text-gray-500 mb-2 flex items-center">
+                        <UserIcon className="mr-1.5 h-4 w-4 text-green-600" /> Πωλητής
                       </h4>
-                      <p className="text-sm font-medium">ID: {product.seller_id.substring(0, 8)}...</p>
+                      <p className="text-sm font-medium bg-gray-50 px-2 py-1 rounded-md inline-block">
+                        ID: {product.seller_id.substring(0, 8)}...
+                      </p>
                     </div>
                   </div>
                 </div>
