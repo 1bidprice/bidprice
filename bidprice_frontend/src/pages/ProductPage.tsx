@@ -41,7 +41,9 @@ export const ProductPage: React.FC = () => {
     const fetchProductData = async () => {
       try {
         setLoading(true);
+        console.log('Fetching product data for ID:', productId);
         const productData = await productsApi.getById(productId);
+        console.log('Product data received:', productData);
         setProduct(productData);
         
         const bidsData = await bidsApi.getForProduct(productId);
@@ -60,14 +62,20 @@ export const ProductPage: React.FC = () => {
 
     fetchProductData();
     
+    return () => {}; // Cleanup function
+  }, [productId]); // Only depend on productId
+  
+  useEffect(() => {
+    if (!product) return;
+    
+    setTimeLeft(formatTimeLeft(product.auction_end_date));
+    
     const timer = setInterval(() => {
-      if (product) {
-        setTimeLeft(formatTimeLeft(product.auction_end_date));
-      }
+      setTimeLeft(formatTimeLeft(product.auction_end_date));
     }, 1000);
     
     return () => clearInterval(timer);
-  }, [productId, product?.auction_end_date]);
+  }, [product]);
 
   const formatTimeLeft = (endDate: string) => {
     const end = new Date(endDate);

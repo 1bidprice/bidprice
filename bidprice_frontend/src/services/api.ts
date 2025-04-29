@@ -1,4 +1,4 @@
-import { AuthResponse, LoginCredentials, RegisterCredentials, User, Product, Bid, ProductFormData } from '../types';
+import { AuthResponse, LoginCredentials, RegisterCredentials, User, Product, Bid, ProductFormData, ImageUploadResponse } from '../types';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -110,6 +110,38 @@ export const productsApi = {
   
   getUserProducts: (userId: string): Promise<Product[]> => {
     return fetchWithAuth(`/users/${userId}/products`);
+  },
+  
+  uploadImage: async (file: File): Promise<ImageUploadResponse> => {
+    const token = localStorage.getItem('token');
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    const headers: Record<string, string> = {};
+    
+    const isDeployedBackend = API_URL.includes('online-auction-app');
+    
+    if (isDeployedBackend) {
+      const username = 'devin';
+      const password = 'integration';
+      const basicAuth = btoa(`${username}:${password}`);
+      headers['Authorization'] = `Basic ${basicAuth}`;
+    } else if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    const response = await fetch(`${API_URL}/products/upload-image`, {
+      method: 'POST',
+      headers,
+      body: formData,
+    });
+    
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.detail || 'Failed to upload image');
+    }
+    
+    return response.json();
   },
 };
 
