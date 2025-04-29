@@ -131,9 +131,9 @@ export const ProductFormPage: React.FC = () => {
       
       await productsApi.create(formData);
       
-      setLoading(false);
-      
       alert('Το προϊόν δημιουργήθηκε επιτυχώς!');
+      
+      setLoading(false);
       
       navigate('/');
     } catch (err: any) {
@@ -292,9 +292,16 @@ export const ProductFormPage: React.FC = () => {
               <Button 
                 type="submit" 
                 disabled={loading || uploadingImage}
-                className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white"
+                className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white relative"
               >
-                {loading ? 'Δημιουργία...' : 'Δημιουργία Προϊόντος'}
+                {loading ? (
+                  <>
+                    <span className="opacity-0">Δημιουργία Προϊόντος</span>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
+                    </div>
+                  </>
+                ) : 'Δημιουργία Προϊόντος'}
               </Button>
             </div>
           </form>
