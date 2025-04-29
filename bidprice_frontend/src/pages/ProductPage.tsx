@@ -180,8 +180,12 @@ export const ProductPage: React.FC = () => {
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+        <div className="flex flex-col justify-center items-center h-64 gap-4">
+          <div className="relative w-20 h-20">
+            <div className="absolute inset-0 rounded-full border-4 border-gray-200"></div>
+            <div className="absolute inset-0 rounded-full border-4 border-t-green-600 border-r-transparent border-b-transparent border-l-transparent animate-spin"></div>
+          </div>
+          <p className="text-gray-600 animate-pulse font-medium">Φόρτωση προϊόντος...</p>
         </div>
       </div>
     );
@@ -205,15 +209,15 @@ export const ProductPage: React.FC = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
-          <Card className="overflow-hidden border-gray-200 shadow-lg hover:shadow-xl transition-shadow duration-300 rounded-xl">
+          <Card className="overflow-hidden border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl transform hover:-translate-y-1">
             {product.image_url ? (
               <div className="relative h-64 md:h-80 overflow-hidden bg-gray-100 border-b border-gray-200">
                 <img 
                   src={`${import.meta.env.VITE_API_URL}/${product.image_url}`} 
                   alt={product.title} 
-                  className="w-full h-full object-contain transform hover:scale-105 transition-transform duration-700"
+                  className="w-full h-full object-contain transform hover:scale-110 transition-transform duration-700"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
                 {product.current_highest_bid && (
                   <div className="absolute top-0 right-0 bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 text-sm font-medium rounded-bl-lg shadow-md flex items-center">
                     <ArrowUp size={14} className="mr-1.5" />
@@ -222,8 +226,8 @@ export const ProductPage: React.FC = () => {
                 )}
               </div>
             ) : (
-              <div className="h-48 bg-gradient-to-r from-gray-50 to-gray-200 flex items-center justify-center border-b border-gray-200">
-                <Package size={64} className="text-gray-400" />
+              <div className="h-48 bg-gradient-to-r from-green-50 to-gray-100 flex items-center justify-center border-b border-gray-200 hover:bg-gradient-to-r hover:from-green-100 hover:to-gray-200 transition-colors duration-500">
+                <Package size={64} className="text-gray-400 hover:text-green-500 transition-colors duration-500 transform hover:scale-110" />
               </div>
             )}
             <CardHeader className="pb-3 border-b border-gray-100 bg-gradient-to-r from-white to-gray-50">
@@ -299,8 +303,8 @@ export const ProductPage: React.FC = () => {
           </Card>
 
           {canPlaceBid() && (
-            <Card className="mt-6 border-gray-200 shadow-md overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-green-50 to-green-100 border-b border-gray-200">
+            <Card className="mt-6 border-gray-200 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden transform hover:-translate-y-1">
+              <CardHeader className="bg-gradient-to-r from-green-50 to-green-100 border-b border-green-100">
                 <CardTitle className="text-gray-800 flex items-center">
                   <ArrowUp className="mr-2 text-green-600" size={18} />
                   Υποβολή Προσφοράς
@@ -337,8 +341,9 @@ export const ProductPage: React.FC = () => {
                     </div>
                     <Button 
                       type="submit" 
+                      variant="primary"
                       disabled={bidLoading}
-                      className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 transition-colors relative"
+                      className="relative"
                     >
                       {bidLoading ? (
                         <>
@@ -375,8 +380,8 @@ export const ProductPage: React.FC = () => {
         </div>
 
         <div>
-          <Card className="border-gray-200 shadow-md overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-green-50 to-green-100 border-b border-gray-200">
+          <Card className="border-gray-200 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden transform hover:-translate-y-1">
+            <CardHeader className="bg-gradient-to-r from-green-50 to-green-100 border-b border-green-100">
               <CardTitle className="text-gray-800 flex items-center">
                 <Clock className="mr-2 text-green-600" size={18} />
                 Ιστορικό Προσφορών
@@ -384,10 +389,12 @@ export const ProductPage: React.FC = () => {
             </CardHeader>
             <CardContent className="p-0">
               {bids.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-8 px-4 bg-gray-50">
-                  <Package size={32} className="text-gray-400 mb-2" />
-                  <p className="text-gray-500 text-center">Δεν υπάρχουν προσφορές ακόμα.</p>
-                  <p className="text-gray-400 text-sm text-center mt-1">Γίνετε ο πρώτος που θα υποβάλει προσφορά!</p>
+                <div className="flex flex-col items-center justify-center py-10 px-6 bg-gradient-to-b from-gray-50 to-white">
+                  <div className="bg-green-50 p-4 rounded-full mb-4">
+                    <Package size={32} className="text-green-500" />
+                  </div>
+                  <p className="text-gray-700 text-center font-medium">Δεν υπάρχουν προσφορές ακόμα.</p>
+                  <p className="text-gray-500 text-sm text-center mt-2 max-w-xs">Γίνετε ο πρώτος που θα υποβάλει προσφορά και αποκτήστε αυτό το μοναδικό προϊόν!</p>
                 </div>
               ) : (
                 <div className="max-h-[400px] overflow-y-auto">

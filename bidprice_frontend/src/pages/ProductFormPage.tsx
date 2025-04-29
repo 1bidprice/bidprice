@@ -155,8 +155,8 @@ export const ProductFormPage: React.FC = () => {
           Δημιουργήστε μια νέα δημοπρασία και αφήστε τους χρήστες να υποβάλουν προσφορές για το προϊόν σας.
         </p>
       </div>
-      <Card className="max-w-2xl mx-auto border border-gray-200 shadow-md">
-        <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+      <Card className="max-w-2xl mx-auto border border-gray-200 shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+        <CardHeader className="bg-gradient-to-r from-green-50 to-gray-100 border-b border-green-100">
           <CardTitle className="flex items-center text-2xl text-gray-800">
             <Package className="mr-2 text-green-600" />
             Στοιχεία Προϊόντος
@@ -291,8 +291,9 @@ export const ProductFormPage: React.FC = () => {
               </Button>
               <Button 
                 type="submit" 
+                variant="primary"
                 disabled={loading || uploadingImage}
-                className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white relative"
+                className="relative"
               >
                 {loading ? (
                   <>
