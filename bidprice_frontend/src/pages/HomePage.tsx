@@ -9,13 +9,13 @@ import { Clock, Package, Tag, User, ArrowUp, RefreshCw } from 'lucide-react';
 
 const HomePage: React.FC = () => {
   const { 
-    data: products = [], 
+    data: products = [] as Product[], 
     isLoading, 
     isError, 
     error, 
     refetch,
     isFetching
-  } = useQuery({
+  } = useQuery<Product[]>({
     queryKey: ['products'],
     queryFn: async () => {
       try {
