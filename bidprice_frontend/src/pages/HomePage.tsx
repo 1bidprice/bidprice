@@ -133,9 +133,15 @@ const HomePage: React.FC = () => {
               {product.image_url ? (
                 <div className="relative h-48 overflow-hidden bg-gray-100">
                   <img 
-                    src={`${import.meta.env.VITE_API_URL}/${product.image_url}`} 
+                    src={product.image_url.startsWith('http') 
+                      ? product.image_url 
+                      : `${import.meta.env.VITE_API_URL}/uploads/${product.image_url}`}
                     alt={product.title} 
                     className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
+                    onError={(e) => {
+                      e.currentTarget.src = '/images/placeholder-product.png';
+                      e.currentTarget.onerror = null;
+                    }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   {product.current_highest_bid && (

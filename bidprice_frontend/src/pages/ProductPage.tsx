@@ -143,6 +143,13 @@ export const ProductPage: React.FC = () => {
       return;
     }
     
+    const loadingTimeout = setTimeout(() => {
+      if (bidLoading) {
+        setBidLoading(false);
+        setBidError('Η προσφορά καθυστερεί. Παρακαλώ δοκιμάστε ξανά αργότερα.');
+      }
+    }, 15000); // 15 seconds timeout
+    
     try {
       setBidLoading(true);
       setBidError(null);
@@ -155,11 +162,14 @@ export const ProductPage: React.FC = () => {
       setBids([newBid, ...bids]);
       setBidAmount('');
       
+      clearTimeout(loadingTimeout);
+      
     } catch (err: any) {
       console.error('Failed to place bid:', err);
       setBidError(err.message || 'Αποτυχία υποβολής προσφοράς. Παρακαλώ δοκιμάστε ξανά.');
     } finally {
       setBidLoading(false);
+      clearTimeout(loadingTimeout);
     }
   };
 
@@ -213,9 +223,15 @@ export const ProductPage: React.FC = () => {
             {product.image_url ? (
               <div className="relative h-64 md:h-80 overflow-hidden bg-gray-100 border-b border-gray-200">
                 <img 
-                  src={`${import.meta.env.VITE_API_URL}/${product.image_url}`} 
+                  src={product.image_url.startsWith('http') 
+                    ? product.image_url 
+                    : `${import.meta.env.VITE_API_URL}/uploads/${product.image_url}`}
                   alt={product.title} 
                   className="w-full h-full object-contain transform hover:scale-110 transition-transform duration-700"
+                  onError={(e) => {
+                    e.currentTarget.src = '/images/placeholder-product.png';
+                    e.currentTarget.onerror = null;
+                  }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
                 {product.current_highest_bid && (

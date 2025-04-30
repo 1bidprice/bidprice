@@ -18,12 +18,15 @@ export const Navbar: React.FC = () => {
     <nav className="bg-white border-b border-gray-200 py-3 shadow-sm">
       <div className="container mx-auto px-4 flex justify-between items-center">
         <div className="flex items-center space-x-6">
-          <Link to="/" className="flex items-center">
-            <img 
-              src="/images/logo.png" 
-              alt="BidPrice.gr Logo" 
-              className="h-12 mr-2" 
-            />
+          <Link to="/" className="flex items-center relative">
+            <div className="relative">
+              <img 
+                src="/images/logo.png" 
+                alt="BidPrice.gr Logo" 
+                className="h-12 mr-2 relative z-10" 
+              />
+              <div className="absolute inset-0 bg-radial-fade pointer-events-none z-20"></div>
+            </div>
             <span className="sr-only">BidPrice.gr</span>
           </Link>
           <div className="hidden md:flex space-x-6">
