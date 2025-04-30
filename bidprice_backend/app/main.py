@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import psycopg
+from fastapi.staticfiles import StaticFiles
 from datetime import datetime, timedelta
 import asyncio
 import os
@@ -32,6 +33,8 @@ app.include_router(products.router)
 app.include_router(bids.router)
 app.include_router(payments.router)
 app.include_router(admin.router)
+
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 @app.get("/healthz")
 async def healthz():

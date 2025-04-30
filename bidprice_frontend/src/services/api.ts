@@ -14,17 +14,31 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
     headers['Authorization'] = `Bearer ${token}`;
   }
   
-  const response = await fetch(`${API_URL}${url}`, {
-    ...options,
-    headers,
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
   
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.detail || 'Something went wrong');
+  try {
+    const response = await fetch(`${API_URL}${url}`, {
+      ...options,
+      headers,
+      signal: controller.signal,
+    });
+    
+    clearTimeout(timeoutId);
+    
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.detail || 'Something went wrong');
+    }
+    
+    return response.json();
+  } catch (error: any) {
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      throw new Error('Το αίτημα έληξε. Παρακαλώ δοκιμάστε ξανά αργότερα.');
+    }
+    throw error;
   }
-  
-  return response.json();
 }
 
 export const authApi = {
@@ -44,7 +58,7 @@ export const authApi = {
       'Content-Type': 'application/x-www-form-urlencoded',
     };
     
-    const isDeployedBackend = API_URL.includes('online-auction-app');
+    const isDeployedBackend = API_URL.includes('app-giksmezo.fly.dev') || API_URL.includes('online-auction-app');
     
     if (isDeployedBackend) {
       const username = 'devin'; // Use the actual username
@@ -112,7 +126,7 @@ export const productsApi = {
     
     const headers: Record<string, string> = {};
     
-    const isDeployedBackend = API_URL.includes('online-auction-app');
+    const isDeployedBackend = API_URL.includes('app-giksmezo.fly.dev') || API_URL.includes('online-auction-app');
     
     if (isDeployedBackend) {
       const username = 'devin';

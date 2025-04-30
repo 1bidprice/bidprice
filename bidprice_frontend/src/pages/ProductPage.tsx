@@ -43,27 +43,40 @@ export const ProductPage: React.FC = () => {
     const fetchProductData = async () => {
       try {
         setLoading(true);
+        setError(null);
         console.log('Fetching product data for ID:', productId);
         
-        const productData = await productsApi.getById(productId);
-        console.log('Product data received:', productData);
-        
-        if (isMounted) {
-          setProduct(productData);
-          setError(null);
+        try {
+          const productData = await productsApi.getById(productId);
+          console.log('Product data received:', productData);
+          
+          if (isMounted) {
+            setProduct(productData);
+          }
+        } catch (productErr: any) {
+          console.error('Failed to fetch product data:', productErr);
+          if (isMounted) {
+            setError(productErr.message || 'Αποτυχία φόρτωσης προϊόντος. Παρακαλώ δοκιμάστε ξανά αργότερα.');
+            return; // Exit early if product fetch fails
+          }
         }
         
-        const bidsData = await bidsApi.getForProduct(productId);
-        
-        if (isMounted) {
-          setBids(bidsData.sort((a, b) => 
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-          ));
+        try {
+          const bidsData = await bidsApi.getForProduct(productId);
+          console.log('Bids data received:', bidsData);
+          
+          if (isMounted) {
+            setBids(bidsData.sort((a, b) => 
+              new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+            ));
+          }
+        } catch (bidsErr) {
+          console.error('Failed to fetch bids data:', bidsErr);
         }
       } catch (err) {
-        console.error('Failed to fetch product data:', err);
+        console.error('Unexpected error in fetchProductData:', err);
         if (isMounted) {
-          setError('Failed to load product data. Please try again later.');
+          setError('Σφάλμα φόρτωσης δεδομένων. Παρακαλώ δοκιμάστε ξανά αργότερα.');
         }
       } finally {
         if (isMounted) {
