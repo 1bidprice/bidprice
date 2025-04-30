@@ -252,7 +252,8 @@ export const ProductPage: React.FC = () => {
                   alt={product.title} 
                   className="w-full h-full object-contain transform hover:scale-110 transition-transform duration-700"
                   onError={(e) => {
-                    e.currentTarget.src = '/images/placeholder-product.png';
+                    console.log('Image failed to load:', product.image_url);
+                    e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9IiNFNUU3RUIiLz48cGF0aCBkPSJNMTAwIDEyOEMxMTcuNjczIDEyOCAxMzIgMTEzLjY3MyAxMzIgOTZDMTMyIDc4LjMyNyAxMTcuNjczIDY0IDEwMCA2NEM4Mi4zMjcgNjQgNjggNzguMzI3IDY4IDk2QzY4IDExMy42NzMgODIuMzI3IDEyOCAxMDAgMTI4WiIgZmlsbD0iIzk0QTNCOCIvPjxwYXRoIGQ9Ik0xNjAgMTY4SDQwQzQwIDE1MS40MzEgNTMuNDMxIDEzOCA3MCAxMzhIMTMwQzE0Ni41NjkgMTM4IDE2MCAxNTEuNDMxIDE2MCAxNjhaIiBmaWxsPSIjOTRBM0I4Ii8+PC9zdmc+';
                     e.currentTarget.onerror = null;
                   }}
                 />
