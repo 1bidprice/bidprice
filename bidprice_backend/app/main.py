@@ -7,9 +7,11 @@ import os
 from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker
 
-from app.routers import auth, users, products, bids, payments
-from app.db_config import Base, engine, get_db
-from app.models import Product
+from app.routers import auth, users, products, bids, payments, admin
+from app.db_config import Base, engine, get_db, SessionLocal
+from app.models import Product, User
+from app.auth import get_password_hash
+import uuid
 
 app = FastAPI(title="BidPrice API", description="API for BidPrice auction platform")
 
@@ -29,6 +31,7 @@ app.include_router(users.router)
 app.include_router(products.router)
 app.include_router(bids.router)
 app.include_router(payments.router)
+app.include_router(admin.router)
 
 @app.get("/healthz")
 async def healthz():
@@ -39,6 +42,26 @@ async def startup_event():
     os.makedirs("uploads", exist_ok=True)
     
     Base.metadata.create_all(bind=engine)
+    
+    db = SessionLocal()
+    try:
+        existing_user = db.query(User).filter(User.email == "test@example.com").first()
+        if not existing_user:
+            new_user = User(
+                id=str(uuid.uuid4()),
+                email="test@example.com",
+                username="test_user",
+                hashed_password=get_password_hash("password123"),
+                is_admin=False
+            )
+            db.add(new_user)
+            db.commit()
+            print(f"Created test user: test_user with email: test@example.com")
+    except Exception as e:
+        print(f"Error creating test user: {e}")
+        db.rollback()
+    finally:
+        db.close()
     
     asyncio.create_task(check_expired_auctions())
 
