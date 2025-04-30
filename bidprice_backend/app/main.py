@@ -34,7 +34,7 @@ app.include_router(bids.router)
 app.include_router(payments.router)
 app.include_router(admin.router)
 
-app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+app.mount("/uploads", StaticFiles(directory="/app/data/uploads"), name="uploads")
 
 @app.get("/healthz")
 async def healthz():
@@ -42,6 +42,7 @@ async def healthz():
 
 @app.on_event("startup")
 async def startup_event():
+    os.makedirs("/app/data/uploads", exist_ok=True)
     os.makedirs("uploads", exist_ok=True)
     
     Base.metadata.create_all(bind=engine)
