@@ -10,14 +10,7 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
     ...(options.headers as Record<string, string> || {}),
   };
   
-  const isDeployedBackend = API_URL.includes('online-auction-app');
-  
-  if (isDeployedBackend) {
-    const username = 'devin'; // Use the actual username
-    const password = 'integration'; // Use the actual password
-    const basicAuth = btoa(`${username}:${password}`);
-    headers['Authorization'] = `Basic ${basicAuth}`;
-  } else if (token) {
+  if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   }
   
