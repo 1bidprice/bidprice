@@ -393,6 +393,25 @@ export const ProductPage: React.FC = () => {
               </AlertDescription>
             </Alert>
           )}
+
+          {isAuthenticated && isAuctionEnded() && product.current_highest_bidder_id === user?.id && (
+            <Card className="mt-6 border-green-200 shadow-md hover:shadow-xl transition-all duration-300">
+              <CardHeader className="bg-gradient-to-r from-green-50 to-green-100 border-b border-green-100">
+                <CardTitle className="text-gray-800">Συγχαρητήρια! Κερδίσατε τη δημοπρασία</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-4">
+                <p className="text-gray-700 mb-4">
+                  Είστε ο νικητής της δημοπρασίας! Μπορείτε τώρα να προχωρήσετε στην πληρωμή για να ολοκληρώσετε την αγορά σας.
+                </p>
+                <Button 
+                  onClick={() => navigate(`/payment/${product.id}`)}
+                  className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800"
+                >
+                  Προχωρήστε σε Πληρωμή
+                </Button>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         <div>
