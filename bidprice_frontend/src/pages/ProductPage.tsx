@@ -41,17 +41,25 @@ export const ProductPage: React.FC = () => {
     let isMounted = true;
     
     const fetchProductData = async () => {
+      let timeoutId: NodeJS.Timeout | null = null;
+      let productFetched = false;
+      let bidsFetched = false;
+      
       try {
         setLoading(true);
         setError(null);
         console.log('Fetching product data for ID:', productId);
         
         console.log('Setting up product fetch timeout');
-        const timeoutId = setTimeout(() => {
+        timeoutId = setTimeout(() => {
           console.log('TIMEOUT TRIGGERED: Product fetch timeout reached after 10 seconds');
           if (isMounted) {
             setLoading(false);
-            setError('Το αίτημα έληξε. Παρακαλώ δοκιμάστε ξανά αργότερα.');
+            if (!productFetched) {
+              setError('Το αίτημα για το προϊόν έληξε. Παρακαλώ δοκιμάστε ξανά αργότερα.');
+            } else if (!bidsFetched) {
+              setError('Το αίτημα για τις προσφορές έληξε. Το προϊόν φορτώθηκε αλλά οι προσφορές όχι.');
+            }
           }
         }, 10000); // 10 second timeout
         
@@ -61,6 +69,7 @@ export const ProductPage: React.FC = () => {
           
           if (isMounted) {
             setProduct(productData);
+            productFetched = true;
             
             try {
               const bidsData = await bidsApi.getForProduct(productId);
@@ -70,6 +79,7 @@ export const ProductPage: React.FC = () => {
                 setBids(bidsData.sort((a, b) => 
                   new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
                 ));
+                bidsFetched = true;
               }
             } catch (bidsErr: any) {
               console.error('Failed to fetch bids data:', bidsErr);
@@ -80,8 +90,6 @@ export const ProductPage: React.FC = () => {
           if (isMounted) {
             setError(productErr.message || 'Αποτυχία φόρτωσης προϊόντος. Παρακαλώ δοκιμάστε ξανά αργότερα.');
           }
-        } finally {
-          clearTimeout(timeoutId);
         }
       } catch (err: any) {
         console.error('Unexpected error in fetchProductData:', err);
@@ -89,7 +97,11 @@ export const ProductPage: React.FC = () => {
           setError('Σφάλμα φόρτωσης δεδομένων. Παρακαλώ δοκιμάστε ξανά αργότερα.');
         }
       } finally {
-        if (isMounted) {
+        if (timeoutId && (productFetched || error)) {
+          clearTimeout(timeoutId);
+        }
+        
+        if (isMounted && (productFetched || error)) {
           setLoading(false);
         }
       }
