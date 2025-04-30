@@ -6,9 +6,17 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:password@localhost/bidprice")
+is_production = os.getenv("FLY_APP_NAME") is not None
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+if is_production:
+    SQLALCHEMY_DATABASE_URL = "sqlite:///./bidprice.db"
+    engine = create_engine(
+        SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
+    )
+else:
+    SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:password@localhost/bidprice")
+    engine = create_engine(SQLALCHEMY_DATABASE_URL)
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
