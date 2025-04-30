@@ -13,11 +13,13 @@ from app.models import Product
 
 app = FastAPI(title="BidPrice API", description="API for BidPrice auction platform")
 
-# Disable CORS. Do not remove this for full-stack development.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for troubleshooting
-    allow_credentials=False,  # Set to False when using wildcard origins
+    allow_origins=[
+        "https://online-auction-app-actogcdb.devinapps.com",  # Production frontend
+        "http://localhost:5173",  # Development frontend
+    ],
+    allow_credentials=True,  # Allow credentials with specific origins
     allow_methods=["*"],  # Allows all methods
     allow_headers=["*"],  # Allows all headers
 )
