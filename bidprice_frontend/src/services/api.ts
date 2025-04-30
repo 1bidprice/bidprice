@@ -1,4 +1,4 @@
-import { AuthResponse, LoginCredentials, RegisterCredentials, User, Product, Bid, ProductFormData, ImageUploadResponse } from '../types';
+import { AuthResponse, LoginCredentials, RegisterCredentials, User, Product, Bid, ProductFormData, ImageUploadResponse, Transaction, PaymentFormData } from '../types';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -172,5 +172,32 @@ export const adminApi = {
   
   getAllBids: (): Promise<Bid[]> => {
     return fetchWithAuth('/bids/');
+  },
+};
+
+export const paymentsApi = {
+  create: (paymentData: PaymentFormData): Promise<Transaction> => {
+    return fetchWithAuth('/payments/create', {
+      method: 'POST',
+      body: JSON.stringify(paymentData),
+    });
+  },
+  
+  getUserPurchases: (): Promise<Transaction[]> => {
+    return fetchWithAuth('/payments/user/purchases');
+  },
+  
+  getUserSales: (): Promise<Transaction[]> => {
+    return fetchWithAuth('/payments/user/sales');
+  },
+  
+  completePayment: (transactionId: string): Promise<Transaction> => {
+    return fetchWithAuth(`/payments/${transactionId}/complete`, {
+      method: 'PUT',
+    });
+  },
+  
+  getTransaction: (transactionId: string): Promise<Transaction> => {
+    return fetchWithAuth(`/payments/${transactionId}`);
   },
 };

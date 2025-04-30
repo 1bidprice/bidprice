@@ -1,0 +1,68 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+import psycopg
+from datetime import datetime, timedelta
+import asyncio
+import os
+from sqlalchemy import create_engine, desc
+from sqlalchemy.orm import sessionmaker
+
+from app.routers import auth, users, products, bids, payments
+from app.db_config import Base, engine, get_db
+from app.models import Product
+
+app = FastAPI(title="BidPrice API", description="API for BidPrice auction platform")
+
+# Disable CORS. Do not remove this for full-stack development.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
+
+app.include_router(auth.router)
+app.include_router(users.router)
+app.include_router(products.router)
+app.include_router(bids.router)
+app.include_router(payments.router)
+
+@app.get("/healthz")
+async def healthz():
+    return {"status": "ok"}
+
+@app.on_event("startup")
+async def startup_event():
+    os.makedirs("uploads", exist_ok=True)
+    
+    Base.metadata.create_all(bind=engine)
+    
+    asyncio.create_task(check_expired_auctions())
+
+async def check_expired_auctions():
+    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    
+    while True:
+        db = SessionLocal()
+        try:
+            now = datetime.now()
+            expired_products = (
+                db.query(Product)
+                .filter(Product.is_active == True)
+                .filter(Product.auction_end_date < now)
+                .all()
+            )
+            
+            for product in expired_products:
+                product.is_active = False
+                print(f"Auction ended for product {product.id}: {product.title}")
+            
+            db.commit()
+        except Exception as e:
+            print(f"Error checking expired auctions: {e}")
+            db.rollback()
+        finally:
+            db.close()
+        
+        await asyncio.sleep(60)
