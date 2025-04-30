@@ -16,7 +16,7 @@ app = FastAPI(title="BidPrice API", description="API for BidPrice auction platfo
 # Disable CORS. Do not remove this for full-stack development.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins
+    allow_origins=["https://online-auction-app-actogcdb.devinapps.com"],  # Allow our deployed frontend
     allow_credentials=True,
     allow_methods=["*"],  # Allows all methods
     allow_headers=["*"],  # Allows all headers
