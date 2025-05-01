@@ -23,14 +23,11 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    if hashed_password == "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW" and plain_password == "password":
-        return True
-    
     try:
         return pwd_context.verify(plain_password, hashed_password)
     except Exception as e:
         print(f"Password verification error: {str(e)}")
-        return plain_password == "password"
+        return False
 
 def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)

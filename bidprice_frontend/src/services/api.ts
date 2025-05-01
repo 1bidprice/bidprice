@@ -15,7 +15,7 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
   }
   
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+  const timeoutId = setTimeout(() => controller.abort(), 30000); // Increase timeout to 30 seconds
   
   try {
     const response = await fetch(`${API_URL}${url}`, {
@@ -61,24 +61,38 @@ export const authApi = {
     const isDeployedBackend = API_URL.includes('app-giksmezo.fly.dev') || API_URL.includes('online-auction-app');
     
     if (isDeployedBackend) {
-      const username = 'devin'; // Use the actual username
-      const password = 'integration'; // Use the actual password
+      const username = 'devin';
+      const password = 'integration';
       const basicAuth = btoa(`${username}:${password}`);
       headers['Authorization'] = `Basic ${basicAuth}`;
     }
     
-    const response = await fetch(`${API_URL}/auth/login`, {
-      method: 'POST',
-      headers,
-      body: formData,
-    });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
     
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(error.detail || 'Login failed');
+    try {
+      const response = await fetch(`${API_URL}/auth/login`, {
+        method: 'POST',
+        headers,
+        body: formData,
+        signal: controller.signal,
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.detail || 'Login failed');
+      }
+      
+      return response.json();
+    } catch (error: any) {
+      clearTimeout(timeoutId);
+      if (error.name === 'AbortError') {
+        throw new Error('Το αίτημα σύνδεσης έληξε. Παρακαλώ δοκιμάστε ξανά αργότερα.');
+      }
+      throw error;
     }
-    
-    return response.json();
   },
   
   getCurrentUser: (): Promise<User> => {

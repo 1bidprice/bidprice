@@ -18,12 +18,20 @@ const HomePage: React.FC = () => {
   } = useQuery<Product[]>({
     queryKey: ['products'],
     queryFn: async () => {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      
       try {
         const data = await productsApi.getAll();
+        clearTimeout(timeoutId);
         return data;
       } catch (err) {
+        clearTimeout(timeoutId);
         console.error('Failed to fetch products:', err);
-        throw new Error('Failed to load products. Please try again later.');
+        if (err instanceof DOMException && err.name === 'AbortError') {
+          throw new Error('Η φόρτωση των προϊόντων έληξε. Παρακαλώ δοκιμάστε ξανά αργότερα.');
+        }
+        throw new Error('Αποτυχία φόρτωσης προϊόντων. Παρακαλώ δοκιμάστε ξανά αργότερα.');
       }
     },
     staleTime: 60 * 1000, // 1 minute

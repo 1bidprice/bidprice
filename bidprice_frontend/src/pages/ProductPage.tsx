@@ -41,54 +41,39 @@ export const ProductPage: React.FC = () => {
     let isMounted = true;
     
     const fetchProductData = async () => {
-      let timeoutId: NodeJS.Timeout | null = null;
-      let productFetched = false;
-      let bidsFetched = false;
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
       
       try {
         setLoading(true);
         setError(null);
-        console.log('Fetching product data for ID:', productId);
-        
-        console.log('Setting up product fetch timeout');
-        timeoutId = setTimeout(() => {
-          console.log('TIMEOUT TRIGGERED: Product fetch timeout reached after 10 seconds');
-          if (isMounted) {
-            setLoading(false);
-            if (!productFetched) {
-              setError('Το αίτημα για το προϊόν έληξε. Παρακαλώ δοκιμάστε ξανά αργότερα.');
-            } else if (!bidsFetched) {
-              setError('Το αίτημα για τις προσφορές έληξε. Το προϊόν φορτώθηκε αλλά οι προσφορές όχι.');
-            }
-          }
-        }, 10000); // 10 second timeout
         
         try {
           const productData = await productsApi.getById(productId);
-          console.log('Product data received:', productData);
           
           if (isMounted) {
             setProduct(productData);
-            productFetched = true;
             
             try {
               const bidsData = await bidsApi.getForProduct(productId);
-              console.log('Bids data received:', bidsData);
               
               if (isMounted) {
                 setBids(bidsData.sort((a, b) => 
                   new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
                 ));
-                bidsFetched = true;
               }
             } catch (bidsErr: any) {
               console.error('Failed to fetch bids data:', bidsErr);
             }
           }
-        } catch (productErr: any) {
-          console.error('Failed to fetch product data:', productErr);
+        } catch (err: any) {
+          console.error('Failed to fetch product data:', err);
           if (isMounted) {
-            setError(productErr.message || 'Αποτυχία φόρτωσης προϊόντος. Παρακαλώ δοκιμάστε ξανά αργότερα.');
+            if (err instanceof DOMException && err.name === 'AbortError') {
+              setError('Το αίτημα έληξε. Παρακαλώ δοκιμάστε ξανά αργότερα.');
+            } else {
+              setError(err.message || 'Αποτυχία φόρτωσης προϊόντος. Παρακαλώ δοκιμάστε ξανά αργότερα.');
+            }
           }
         }
       } catch (err: any) {
@@ -97,11 +82,9 @@ export const ProductPage: React.FC = () => {
           setError('Σφάλμα φόρτωσης δεδομένων. Παρακαλώ δοκιμάστε ξανά αργότερα.');
         }
       } finally {
-        if (timeoutId && (productFetched || error)) {
-          clearTimeout(timeoutId);
-        }
+        clearTimeout(timeoutId);
         
-        if (isMounted && (productFetched || error)) {
+        if (isMounted) {
           setLoading(false);
         }
       }
@@ -178,12 +161,14 @@ export const ProductPage: React.FC = () => {
       return;
     }
     
+    const controller = new AbortController();
     const loadingTimeout = setTimeout(() => {
+      controller.abort();
       if (bidLoading) {
         setBidLoading(false);
         setBidError('Η προσφορά καθυστερεί. Παρακαλώ δοκιμάστε ξανά αργότερα.');
       }
-    }, 15000); // 15 seconds timeout
+    }, 30000); // 30 seconds timeout
     
     try {
       setBidLoading(true);

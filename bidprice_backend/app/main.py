@@ -1,10 +1,11 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
-import psycopg
 from fastapi.staticfiles import StaticFiles
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from datetime import datetime, timedelta
 import asyncio
 import os
+import secrets
 from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker
 
@@ -14,6 +15,18 @@ from app.models import Product, User
 from app.auth import get_password_hash
 import uuid
 
+security = HTTPBasic()
+
+def verify_basic_auth(credentials: HTTPBasicCredentials = Depends(security)):
+    correct_username = "devin"
+    correct_password = "integration"
+    is_correct_username = secrets.compare_digest(credentials.username, correct_username)
+    is_correct_password = secrets.compare_digest(credentials.password, correct_password)
+    if not (is_correct_username and is_correct_password):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect credentials")
+    return True
+
+
 app = FastAPI(title="BidPrice API", description="API for BidPrice auction platform")
 
 app.add_middleware(
@@ -21,10 +34,13 @@ app.add_middleware(
     allow_origins=[
         "https://online-auction-app-actogcdb.devinapps.com",  # Production frontend
         "http://localhost:5173",  # Development frontend
+        "http://localhost:3000",  # Allow local frontend
+        "https://bidprice.gr",    # Domain
+        "*"                       # Allow all origins temporarily for testing
     ],
     allow_credentials=True,  # Allow credentials with specific origins
-    allow_methods=["*"],  # Allows all methods
-    allow_headers=["*"],  # Allows all headers
+    allow_methods=["*"],     # Allows all methods
+    allow_headers=["*"],     # Allows all headers
 )
 
 app.include_router(auth.router)
@@ -34,7 +50,13 @@ app.include_router(bids.router)
 app.include_router(payments.router)
 app.include_router(admin.router)
 
-app.mount("/uploads", StaticFiles(directory="/app/data/uploads"), name="uploads")
+UPLOAD_DIR_DEV = 'uploads'
+UPLOAD_DIR_PROD = '/app/data/uploads'
+
+is_production = os.getenv("FLY_APP_NAME") is not None
+UPLOAD_DIR = UPLOAD_DIR_PROD if is_production else UPLOAD_DIR_DEV
+
+app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 @app.get("/healthz")
 async def healthz():
@@ -42,8 +64,10 @@ async def healthz():
 
 @app.on_event("startup")
 async def startup_event():
-    os.makedirs("/app/data/uploads", exist_ok=True)
-    os.makedirs("uploads", exist_ok=True)
+    if is_production:
+        os.makedirs(UPLOAD_DIR_PROD, exist_ok=True)
+    else:
+        os.makedirs(UPLOAD_DIR_DEV, exist_ok=True)
     
     Base.metadata.create_all(bind=engine)
     

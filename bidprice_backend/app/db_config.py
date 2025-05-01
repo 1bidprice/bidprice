@@ -10,7 +10,7 @@ is_production = os.getenv("FLY_APP_NAME") is not None
 
 if is_production:
     SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:password@localhost/bidprice")
-    engine = create_engine(SQLALCHEMY_DATABASE_URL)
+    engine = create_engine(SQLALCHEMY_DATABASE_URL, pool_size=5, max_overflow=10, pool_timeout=30)
 else:
     SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:password@localhost/bidprice")
     engine = create_engine(SQLALCHEMY_DATABASE_URL)
